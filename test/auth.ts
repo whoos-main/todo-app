@@ -15,10 +15,6 @@ export async function loginAs(username: string) {
   return user;
 }
 
-export function logout() {
-  cookieJar.clear();
-}
-
 export async function resetUsers() {
   cookieJar.clear();
   await baseDb.session.deleteMany();

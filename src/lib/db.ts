@@ -19,7 +19,6 @@ const WHERE_OPS = new Set([
   'findUnique', 'findUniqueOrThrow', 'findFirst', 'findFirstOrThrow', 'findMany',
   'count', 'aggregate', 'groupBy', 'update', 'updateMany', 'delete', 'deleteMany', 'upsert',
 ]);
-
 const WRITE_OPS = new Set(['create', 'createMany']);
 
 type ScopedArgs = { where?: object; data?: object | object[]; create?: object };

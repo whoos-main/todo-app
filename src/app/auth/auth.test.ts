@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { baseDb, db, runAsUser } from '@/lib/db';
 import { SESSION_COOKIE, STATE_COOKIE, hashToken } from '@/lib/auth';
 import { cookieJar } from '../../../test/cookies';
-import { loginAs, logout, resetUsers } from '../../../test/auth';
+import { loginAs, resetUsers } from '../../../test/auth';
 import * as start from './github/route';
 import * as callback from './github/callback/route';
 import * as logoutRoute from './logout/route';
@@ -329,7 +329,6 @@ describe('POST /auth/logout', () => {
   });
 
   it('works without a session', async () => {
-    logout();
     const res = await logoutRoute.POST(new Request('http://localhost:3000/auth/logout', { method: 'POST' }));
     expect(res.status).toBe(303);
   });

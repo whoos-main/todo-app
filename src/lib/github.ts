@@ -1,7 +1,7 @@
 // GitHub OAuth App settings come only from the environment (see docs/LOGIN.md and .env.example)
 
-export type GitHubConfig = { clientId: string; clientSecret: string; callbackUrl: string };
-export type GitHubUser = { id: number; login: string; avatar_url: string };
+type GitHubConfig = { clientId: string; clientSecret: string; callbackUrl: string };
+type GitHubUser = { id: number; login: string; avatar_url: string };
 
 /** null when GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET are not set. */
 export function githubConfig(req: Request): GitHubConfig | null {

@@ -26,7 +26,8 @@ GITHUB_CLIENT_SECRET="복사한 Client secret"
 ```
 
 - Client secret은 코드나 문서에 적지 말고 `.env`에만 두세요. `.env`는 `.gitignore`에 들어 있어요.
-- 주소가 `http://localhost:3000`이 아니면, OAuth App의 callback URL과 같은 값을 `GITHUB_CALLBACK_URL`에도 넣으세요.
+- 앱은 `http://localhost:3000`(포트를 바꿨다면 `http://localhost:<포트>`)으로 여세요. 다른 사이트에서 보낸 요청을 막으려고, 브라우저 주소의 출처가 서버 주소와 다르면 저장·로그아웃이 403으로 거부돼요. `127.0.0.1`이나 LAN IP로 열면 저장되지 않아요.
+- 포트를 바꿨다면 OAuth App의 callback URL과 같은 값을 `GITHUB_CALLBACK_URL`에도 넣으세요.
 - `.env`를 고친 뒤에는 `npm run dev`를 다시 시작하세요.
 
 ## 3. 실행하고 로그인하기
@@ -69,5 +70,6 @@ npm run db:migrate-user -- <내 GitHub 아이디>
 |---|---|
 | "GitHub OAuth 설정이 없어요" | `.env`의 `GITHUB_CLIENT_ID`와 `GITHUB_CLIENT_SECRET` 값, 그리고 `npm run dev`를 다시 시작했는지 |
 | GitHub에서 "redirect_uri is not associated" | OAuth App의 callback URL이 `http://localhost:3000/auth/github/callback`과 정확히 같은지 |
+| 저장이 안 되고 "다른 사이트에서 보낸 요청" 오류가 나요 | 주소창이 `http://localhost:3000`인지 (`127.0.0.1`, LAN IP는 안 돼요) |
 | "GitHub에서 사용자 정보를 가져오지 못했어요" | Client secret이 맞는지. 다시 만들었다면 `.env`도 바꿨는지 (서버 로그에 자세한 원인이 나와요) |
 | 로그인했는데 예전 할 일이 안 보여요 | 4번의 `npm run db:migrate-user`를 실행했는지 |
