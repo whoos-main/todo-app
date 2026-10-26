@@ -26,6 +26,14 @@ test.describe('로그인하지 않은 사용자', () => {
     expect(res.headers()['location']).not.toContain('e2e-client-secret');
   });
 
+  test('설정 오류 화면은 서버에 없는 설정 이름을 알려준다 (값은 보여주지 않음)', async ({ page }) => {
+    // The E2E server has every setting, so the page says so instead of naming missing ones
+    await page.goto('/login?error=config');
+    const alert = page.locator('.login [role=alert]');
+    await expect(alert).toContainText('지금은 서버 설정이 모두 들어 있어요');
+    await expect(alert).not.toContainText('e2e-client-secret');
+  });
+
   test('state가 맞지 않는 콜백은 로그인되지 않고 오류를 보여준다', async ({ page }) => {
     await page.goto('/auth/github/callback?code=x&state=forged');
     await expect(page).toHaveURL(/\/login\?error=state$/);

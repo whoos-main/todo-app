@@ -51,6 +51,25 @@ npm run db:migrate-user -- <내 GitHub 아이디>
 - 이미 주인이 있는 데이터는 건드리지 않아요. 여러 번 실행해도 결과는 같아요.
 - 예시 데이터를 새로 넣고 싶으면 `npm run db:seed`를 실행하세요. 가장 최근에 로그인한 사용자에게 들어가요. 다른 사용자에게 넣으려면 `SEED_USER=<GitHub 아이디>`를 지정하세요.
 
+## 5. Vercel에 배포할 때
+
+`.env`는 GitHub에 올리지 않아서 Vercel에는 값이 없어요. 아래 값을 Vercel에 직접 넣어야 해요.
+
+1. **OAuth App을 하나 더 만드세요.** 로컬용 앱은 callback URL이 `localhost`라서 Vercel 주소에서는 쓸 수 없어요.
+   - Homepage URL: `https://<프로젝트>.vercel.app`
+   - Authorization callback URL: `https://<프로젝트>.vercel.app/auth/github/callback`
+2. **MongoDB Atlas**(무료 M0)를 만드세요. Vercel은 내 PC의 MongoDB에 접속할 수 없어요.
+   - Network Access에 `0.0.0.0/0`을 허용하세요.
+   - 접속 주소 끝에 DB 이름을 붙이세요: `mongodb+srv://…mongodb.net/todo?…`
+   - 내 PC에서 한 번 실행하세요. PowerShell: `$env:MONGODB_URI="<Atlas 주소>"; npx prisma db push`
+3. **Vercel 프로젝트 → Settings → Environment Variables**에 `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `MONGODB_URI`를 넣으세요.
+   - Production에 체크하세요.
+   - 값에 따옴표는 넣지 마세요.
+4. **Deployments → 최신 배포 → ⋯ → Redeploy**를 누르세요. 다시 배포해야 새 값이 적용돼요.
+5. `https://<프로젝트>.vercel.app`으로 접속하세요. 미리보기 주소(`…-git-…`)는 callback URL이 달라서 로그인이 안 돼요.
+
+로그인 화면에 "서버에 … 값이 없어요"가 나오면, 그 이름의 변수가 Vercel에 없거나 다시 배포하지 않은 거예요.
+
 ## 동작 방식
 
 | 경로 | 하는 일 |
@@ -68,7 +87,7 @@ npm run db:migrate-user -- <내 GitHub 아이디>
 
 | 증상 | 확인할 것 |
 |---|---|
-| "GitHub OAuth 설정이 없어요" | `.env`의 `GITHUB_CLIENT_ID`와 `GITHUB_CLIENT_SECRET` 값, 그리고 `npm run dev`를 다시 시작했는지 |
+| "서버에 … 값이 없어요" | 로컬: `.env`에 그 이름의 값이 있는지, `npm run dev`를 다시 시작했는지. Vercel: 5번의 3·4단계 (변수 이름 철자, Production 체크, Redeploy) |
 | GitHub에서 "redirect_uri is not associated" | OAuth App의 callback URL이 `http://localhost:3000/auth/github/callback`과 정확히 같은지 |
 | 저장이 안 되고 "다른 사이트에서 보낸 요청" 오류가 나요 | 주소창이 `http://localhost:3000`인지 (`127.0.0.1`, LAN IP는 안 돼요) |
 | "GitHub에서 사용자 정보를 가져오지 못했어요" | Client secret이 맞는지. 다시 만들었다면 `.env`도 바꿨는지 (서버 로그에 자세한 원인이 나와요) |
