@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma needs MongoDB running as a replica set (see scripts/mongo-dev.mjs)
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+// status: "todo" | "in_progress" | "done" — validated with zod at the API boundary
+// Dates are stored as YYYY-MM-DD strings to avoid timezone shifts
+// MongoDB has no foreign keys: Prisma emulates onDelete: Cascade in its client
+// userId (User.id) is on every plan level so src/lib/db.ts can scope each query to the signed-in user.
+// The scoped client always sets it; "" (written only outside a request) matches no user, so such rows stay hidden
+
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  githubId  Int       @unique
+  username  String
+  avatarUrl String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sessions  Session[]
+}
+
+// The cookie holds a random token; only its SHA-256 hash is stored
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tokenHash String   @unique
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model YearPlan {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String      @default("")
+  year      Int
+  title     String
+  status    String      @default("todo")
+  createdAt DateTime    @default(now())
+  months    MonthPlan[]
+
+  @@index([userId])
+}
+
+model MonthPlan {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  yearPlanId String     @db.ObjectId
+  yearPlan   YearPlan   @relation(fields: [yearPlanId], references: [id], onDelete: Cascade)
+  userId     String     @default("")
+  month      Int
+  title      String
+  status     String     @default("todo")
+  createdAt  DateTime   @default(now())
+  weeks      WeekPlan[]
+
+  @@index([yearPlanId])
+  @@index([userId])
+}
+
+model WeekPlan {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  monthPlanId String      @db.ObjectId
+  monthPlan   MonthPlan   @relation(fields: [monthPlanId], references: [id], onDelete: Cascade)
+  userId      String      @default("")
+  weekStart   String
+  title       String
+  status      String      @default("todo")
+  createdAt   DateTime    @default(now())
+  tasks       DailyTask[]
+
+  @@index([monthPlanId])
+  @@index([userId])
+  @@index([weekStart])
+}
+
+model DailyTask {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  weekPlanId String   @db.ObjectId
+  weekPlan   WeekPlan @relation(fields: [weekPlanId], references: [id], onDelete: Cascade)
+  userId     String   @default("")
+  date       String
+  title      String
+  status     String   @default("todo")
+  order      Float
+  createdAt  DateTime @default(now())
+
+  @@index([weekPlanId])
+  @@index([userId])
+  @@index([date])
+}

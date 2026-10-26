@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.next-e2e/
+.next-verify/
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+
+# Local MongoDB data (npm run db:start)
+.mongo-data/
+.env
+
+test-results/
+playwright-report/
